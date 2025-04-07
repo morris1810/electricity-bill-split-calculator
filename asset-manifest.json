@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/electricity-bill-split-calculator/static/css/main.2fb0776d.css",
+    "main.js": "/electricity-bill-split-calculator/static/js/main.040f9722.js",
+    "index.html": "/electricity-bill-split-calculator/index.html",
+    "main.2fb0776d.css.map": "/electricity-bill-split-calculator/static/css/main.2fb0776d.css.map",
+    "main.040f9722.js.map": "/electricity-bill-split-calculator/static/js/main.040f9722.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2fb0776d.css",
+    "static/js/main.040f9722.js"
+  ]
+}
