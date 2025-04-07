@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { toJpeg } from 'html-to-image';
+import { Calculator, Delete } from 'lucide-react';
+import { evaluate, round } from 'mathjs';
 
 const defaultTiers = [
   { id: '1', from: 1, to: 200, rate: 0.218 },
@@ -24,14 +26,12 @@ const icptRates = {
 
 export default function App() {
   const [tiers, setTiers] = useState(defaultTiers);
-  const [rentals, setRentals] = useState([{
-    id: 1,
-    name: '',
-    kwh: ''
-  }]);
+  const [rentals, setRentals] = useState([{ id: 1, name: '', kWh: '' }]);
   const [serviceTaxRate, setServiceTaxRate] = useState(8);
   const [customerType, setCustomerType] = useState('domestic');
   const [icptCategory, setIcptCategory] = useState('lv');
+  const [showCalculator, setShowCalculator] = useState(null);
+  const [calcValue, setCalcValue] = useState('');
   const resultRef = useRef(null);
 
   // Tier management functions
@@ -63,6 +63,34 @@ export default function App() {
     ));
   };
 
+  // Calculator functions
+  const handleCalcInput = (value) => {
+    if (value === 'C') {
+      setCalcValue(prev => prev.split("").splice(0, prev.length - 1).join(""));
+    } else {
+      setCalcValue(prev => prev + value);
+    }
+  };
+
+  const applyCalculation = (unitId) => {
+    try {
+      const result = round(evaluate(calcValue), 4)
+      if (!isNaN(result)) {
+        setRentals(rentals.map(rental =>
+          rental.id === unitId ? {
+            ...rental,
+            kWh: result,
+            calculation: calcValue
+          } : rental
+        ));
+      }
+    } catch {
+      alert('Invalid calculation');
+    }
+    setShowCalculator(null);
+    setCalcValue('');
+  };
+
   // Calculation logic
   const calculateCosts = () => {
     const tenants = rentals.map(r => ({
@@ -79,7 +107,6 @@ export default function App() {
       let tierRemaining = Math.min(tierCapacity, totalRemaining);
       const initialTierRemaining = tierRemaining;
 
-      // Reset tier usage for all tenants
       tenants.forEach(t => t.tiers[tier.id] = 0);
 
       while (tierRemaining > 0) {
@@ -132,7 +159,6 @@ export default function App() {
         return { usage, rate: tier.rate, cost };
       });
 
-      // Add ICPT and Tax proportionally
       const tenantRatio = tenant.kWh / totalKWh;
       const tenantIcpt = icpt * tenantRatio;
       const tenantTax = serviceTax * tenantRatio;
@@ -241,15 +267,26 @@ export default function App() {
                   value={rental.name}
                   onChange={(e) => updateRental(rental.id, 'name', e.target.value)}
                 />
-                <input
-                  type="number"
-                  placeholder="kWh"
-                  className="input input-bordered w-32"
-                  value={rental.kWh}
-                  onChange={(e) => updateRental(rental.id, 'kWh', e.target.value)}
-                />
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    placeholder="kWh"
+                    className="input input-bordered w-32"
+                    value={rental.kWh}
+                    onChange={(e) => updateRental(rental.id, 'kWh', e.target.value)}
+                  />
+                  <button
+                    className="btn btn-square"
+                    onClick={() => {
+                      setCalcValue(rental.kWh || '');
+                      setShowCalculator(rental.id);
+                    }}
+                  >
+                    <Calculator size={24} />
+                  </button>
+                </div>
                 <button
-                  className="btn btn-square btn-sm btn-error"
+                  className="btn btn-square btn-error"
                   onClick={() => setRentals(rentals.filter(r => r.id !== rental.id))}
                 >
                   ✕
@@ -260,6 +297,42 @@ export default function App() {
           <button className="btn btn-neutral mt-2" onClick={addRental}>
             Add Rental Unit
           </button>
+        </div>
+      </div>
+
+      {/* Calculator Modal */}
+      <div className={`modal ${showCalculator ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Calculator</h3>
+          <div className="p-4 bg-base-100 rounded-box">
+            <div className="mb-4">
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={calcValue}
+                readOnly
+              />
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {['7', '8', '9', '+', '4', '5', '6', '-', '1', '2', '3', '*', '0', '.', 'C', '/'].map((btn) => (
+                <button
+                  key={btn}
+                  className={`btn btn-md ${btn === 'C' ? 'btn-error btn-outline' : ''}`}
+                  onClick={() => handleCalcInput(btn)}
+                >
+                  {btn === 'C' ? <Delete className='-translate-x-[.5px]' /> : btn}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="modal-action">
+            <button className="btn btn-primary" onClick={() => applyCalculation(showCalculator)}>
+              Apply
+            </button>
+            <button className="btn" onClick={() => setShowCalculator(null)}>
+              Close
+            </button>
+          </div>
         </div>
       </div>
 
@@ -429,6 +502,21 @@ export default function App() {
                   </table>
                 </div>
               </div>
+
+              {/* Calculation */}
+              <div>
+                <h3 className="font-bold mb-2">Remark:</h3>
+                {
+                  rentalDetails.map((rental, i) => {
+                    return <div key={i} className='mb-4'>{rental.calculation && (
+                      <p className="">
+                        {rental.name || `Unit ${i + 1}`}: {rental.calculation} = {rental.kWh}
+                      </p>
+                    )}</div>
+                  })
+                }
+              </div>
+
 
               <div className="text-right font-bold text-lg mt-4">
                 Grand Total: RM{totalCost.toFixed(2)}
