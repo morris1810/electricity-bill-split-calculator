@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/electricity-bill-split-calculator/static/css/main.015a4883.css",
-    "main.js": "/electricity-bill-split-calculator/static/js/main.4999baab.js",
+    "main.css": "/electricity-bill-split-calculator/static/css/main.c03aa72c.css",
+    "main.js": "/electricity-bill-split-calculator/static/js/main.1c58fa50.js",
     "index.html": "/electricity-bill-split-calculator/index.html",
-    "main.015a4883.css.map": "/electricity-bill-split-calculator/static/css/main.015a4883.css.map",
-    "main.4999baab.js.map": "/electricity-bill-split-calculator/static/js/main.4999baab.js.map"
+    "main.c03aa72c.css.map": "/electricity-bill-split-calculator/static/css/main.c03aa72c.css.map",
+    "main.1c58fa50.js.map": "/electricity-bill-split-calculator/static/js/main.1c58fa50.js.map"
   },
   "entrypoints": [
-    "static/css/main.015a4883.css",
-    "static/js/main.4999baab.js"
+    "static/css/main.c03aa72c.css",
+    "static/js/main.1c58fa50.js"
   ]
 }
