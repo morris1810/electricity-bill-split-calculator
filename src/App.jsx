@@ -105,7 +105,7 @@ export default function App() {
   const generateShareLink = () => {
     const state = {
       t: tiers.map(({ id, ...rest }) => rest), // Remove UUIDs
-      r: rentals.map(({ id, calculation, ...rest }) => rest),
+      r: rentals.map(({ id, ...rest }) => rest),
       str: serviceTaxRate,
       ct: customerType,
       ic: icptCategory
